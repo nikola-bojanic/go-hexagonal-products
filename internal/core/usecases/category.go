@@ -36,6 +36,9 @@ func (s *CategoryService) FindCategoryById(ctx context.Context, id int64) (*doma
 	return category, nil
 }
 func (s *CategoryService) CreateCategory(ctx context.Context, category *domain.Category) (int64, error) {
+	if len(category.Name) < 1 {
+		return 0, errors.New("category doesn't have a name")
+	}
 	id, err := s.categoryRepo.InsertCategory(ctx, category)
 	if err != nil {
 		return 0, errors.Wrap(err, "Failed to create a category")
