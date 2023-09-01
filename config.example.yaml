@@ -1,0 +1,16 @@
+env: local
+
+http:
+  port: 3000
+
+base_domain: http://localhost
+
+db:
+  name: hex_fwk_db
+  schema: hex_fwk
+  host: localhost
+  port: 5432
+  user: hex_fwk_db_user
+  pass: hex_fwk_db_pass
+
+version: 0.0.1

@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS hex_fwk.category 
+(
+    category_id BIGSERIAL NOT NULL PRIMARY KEY,
+    category_name VARCHAR(75) NOT NULL,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);

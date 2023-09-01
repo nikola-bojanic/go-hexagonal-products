@@ -1,0 +1,2 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA pg_catalog;
+CREATE SCHEMA IF NOT EXISTS hex_fwk AUTHORIZATION hex_fwk_db_user;
