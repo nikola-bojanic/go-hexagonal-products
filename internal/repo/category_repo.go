@@ -49,7 +49,7 @@ func (repo *CategoryRepository) FindCategoryById(ctx context.Context, id int64) 
 	err := repo.db.QueryRow(ctx, `SELECT category_id, category_name, created_at, updated_at FROM hex_fwk.category WHERE category_id = $1`, id).
 		Scan(&category.Id, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 	if err == sql.ErrNoRows {
-		err = fmt.Errorf("Category not found")
+		err = fmt.Errorf("category not found")
 		return nil, err
 	}
 	if err != nil {

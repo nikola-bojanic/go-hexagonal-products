@@ -28,3 +28,15 @@ type CategoryRepo interface {
 	DeleteCategory(ctx context.Context, id int64) (int64, error)
 	UpdateCategory(ctx context.Context, category *domain.Category, id int64) (int64, error)
 }
+
+type OrderRepo interface {
+	FindOrderById(ctx context.Context, id string) (*domain.Order, error)
+	CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
+	UpdateOrderStatus(ctx context.Context, order *domain.Order) (*domain.Order, error)
+}
+
+type OrderProductRepo interface {
+	Add(ctx context.Context, orderId string, productId int64) error
+	// Delete(ctx context.Context, orderId string) (int64, error)
+	GetProducts(ctx context.Context, orderId string) (*[]domain.OrderedProduct, error)
+}

@@ -18,5 +18,5 @@ type Product struct {
 }
 
 func (e *Product) ToString() string {
-	return fmt.Sprintf("%d %s %s %s %f %d", e.ProductId, e.Name, e.ShortDescription, e.Description, e.Price, e.Quantity)
+	return fmt.Sprintf("%d %s %s %s %f %d %v", e.ProductId, e.Name, e.ShortDescription, e.Description, e.Price, e.Quantity, e.Category)
 }

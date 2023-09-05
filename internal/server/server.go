@@ -12,6 +12,7 @@ import (
 
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/database"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/category"
+	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/order"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/product"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/user"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/log"
@@ -79,9 +80,11 @@ func NewServer(cfg config.ServerConfig, db *database.DB) *Server {
 
 	productRep := repo.NewProductRepository(db)
 	productSvc := usecases.NewProductService(productRep)
-
+	orderRep := repo.NewOrderRepository(db)
+	orderSvc := usecases.NewOrderService(orderRep, productRep)
 	product.NewProductHandler(productSvc, categorySvc, wsCont)
 	category.NewCategoryHandler(categorySvc, wsCont)
+	order.NewOrderHandler(orderSvc, wsCont)
 	user.NewUserHandler(userSvc, wsCont)
 
 	http.Handle("/", wsCont)

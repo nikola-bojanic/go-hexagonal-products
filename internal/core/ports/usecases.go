@@ -28,3 +28,9 @@ type CategoryUsecase interface {
 	DeleteCategory(ctx context.Context, id int64) (int64, error)
 	UpdateCategory(ctx context.Context, category *domain.Category, id int64) (int64, error)
 }
+
+type OrderUsecase interface {
+	FindOrderById(ctx context.Context, id string) (*domain.Order, error)
+	CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
+	UpdateOrderStatus(ctx context.Context, order *domain.Order) (*domain.Order, error)
+}
