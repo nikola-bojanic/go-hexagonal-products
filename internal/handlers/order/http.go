@@ -50,6 +50,7 @@ func (e *OrderHttpHandler) UpdateOrderStatus(req *restful.Request, res *restful.
 	var order *OrderModel = &OrderModel{}
 	order.ID = reqData.OrderId
 	order.Status = reqData.Status
+	order.ProductItems = reqData.Products
 	updated, err := e.orderSvc.UpdateOrderStatus(req.Request.Context(), order.ToDomain())
 	if err != nil {
 		res.WriteError(http.StatusInternalServerError, errors.New("error updating order status"))
