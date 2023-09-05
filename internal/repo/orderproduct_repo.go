@@ -39,7 +39,7 @@ func (repo *OrderProductRepository) GetProducts(ctx context.Context, orderId str
 		if err != nil {
 			return nil, err
 		}
-		var orderProduct *domain.OrderedProduct
+		var orderProduct *domain.OrderedProduct = &domain.OrderedProduct{}
 		orderProduct.ProductId = int64(product.ProductId)
 		orderProduct.Quantity = quantity
 		products = append(products, *orderProduct)
@@ -47,8 +47,8 @@ func (repo *OrderProductRepository) GetProducts(ctx context.Context, orderId str
 	return &products, err
 }
 
-func (repo *OrderProductRepository) Add(ctx context.Context, orderId string, productId int64) error {
-	_, err := repo.db.Exec(ctx, `INSERT INTO hex_fwk.order_product (order_id, product_id) VALUES ($1, $2)`, orderId, productId)
+func (repo *OrderProductRepository) Add(ctx context.Context, orderId string, productId int64, quantity int) error {
+	_, err := repo.db.Exec(ctx, `INSERT INTO hex_fwk.order_product (order_id, product_id, quantity) VALUES ($1, $2, $3)`, orderId, productId, quantity)
 	if err != nil {
 		return err
 	}

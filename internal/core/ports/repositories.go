@@ -36,7 +36,6 @@ type OrderRepo interface {
 }
 
 type OrderProductRepo interface {
-	Add(ctx context.Context, orderId string, productId int64) error
-	// Delete(ctx context.Context, orderId string) (int64, error)
+	Add(ctx context.Context, orderId string, productId int64, quantity int) error
 	GetProducts(ctx context.Context, orderId string) (*[]domain.OrderedProduct, error)
 }

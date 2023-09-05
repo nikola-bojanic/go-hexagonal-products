@@ -37,7 +37,7 @@ func (e *OrderHttpHandler) CreateOrder(req *restful.Request, res *restful.Respon
 	order.ProductItems = reqData.Products
 	created, err := e.orderSvc.CreateOrder(req.Request.Context(), order.ToDomain())
 	if err != nil {
-		res.WriteError(http.StatusInternalServerError, errors.New("error creating order"))
+		res.WriteError(http.StatusInternalServerError, err)
 		return
 	}
 	order.FromDomain(created)

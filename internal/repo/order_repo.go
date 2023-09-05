@@ -44,12 +44,12 @@ func (repo *OrderRepository) FindOrderById(ctx context.Context, id string) (*dom
 }
 func (repo *OrderRepository) CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
 	err := repo.db.QueryRow(ctx, `INSERT INTO hex_fwk.order (status) VALUES ($1) RETURNING id, status, created_at, updated_at`, order.Status).
-		Scan(&order.ID, order.Status, order.CreatedAt, order.UpdatedAt)
+		Scan(&order.ID, &order.Status, &order.CreatedAt, &order.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
 	for _, product := range *order.ProductItems {
-		err := repo.OrderProductRepository.Add(ctx, order.ID, int64(product.ProductId))
+		err := repo.OrderProductRepository.Add(ctx, order.ID, product.ProductId, product.Quantity)
 		if err != nil {
 			return nil, err
 		}
