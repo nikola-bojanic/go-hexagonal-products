@@ -54,3 +54,11 @@ func (repo *OrderProductRepository) Add(ctx context.Context, orderId string, pro
 	}
 	return nil
 }
+
+func (repo *OrderProductRepository) Delete(ctx context.Context, orderId string, productId int64) error {
+	_, err := repo.db.Exec(ctx, `DELETE FROM hex_fwk.order_product WHERE order_id = $1 AND product_id = $2`, orderId, productId)
+	if err != nil {
+		return err
+	}
+	return nil
+}

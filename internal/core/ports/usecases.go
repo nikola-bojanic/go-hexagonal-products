@@ -33,4 +33,5 @@ type OrderUsecase interface {
 	FindOrderById(ctx context.Context, id string) (*domain.Order, error)
 	CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
 	UpdateOrderStatus(ctx context.Context, order *domain.Order) (*domain.Order, error)
+	DeleteOrder(ctx context.Context, order *domain.Order) error
 }

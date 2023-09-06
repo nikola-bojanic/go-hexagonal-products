@@ -43,6 +43,7 @@ func (repo *OrderRepository) FindOrderById(ctx context.Context, id string) (*dom
 	return &order, nil
 }
 func (repo *OrderRepository) CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
+	order.Status = "CREATED"
 	err := repo.db.QueryRow(ctx, `INSERT INTO hex_fwk.order (status) VALUES ($1) RETURNING id, status, created_at, updated_at`, order.Status).
 		Scan(&order.ID, &order.Status, &order.CreatedAt, &order.UpdatedAt)
 	if err != nil {
@@ -69,4 +70,18 @@ func (repo *OrderRepository) UpdateOrderStatus(ctx context.Context, order *domai
 	}
 	order.UpdatedAt = updatedAt
 	return order, nil
+}
+
+func (repo *OrderRepository) DeleteOrder(ctx context.Context, order *domain.Order) error {
+	for _, product := range *order.ProductItems {
+		err := repo.OrderProductRepository.Delete(ctx, order.ID, product.ProductId)
+		if err != nil {
+			return err
+		}
+	}
+	_, err := repo.db.Exec(ctx, `DELETE FROM hex_fwk.order WHERE id = $1`, order.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

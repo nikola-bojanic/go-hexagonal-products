@@ -31,12 +31,9 @@ func (s *OrderService) FindOrderById(ctx context.Context, id string) (*domain.Or
 	return order, nil
 }
 func (s *OrderService) CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
-	validStatus := order.Status == "" || order.Status == "CREATED" || order.Status == "PENDING" || order.Status == "COMPLETED" || order.Status == "CLOSED"
-	if !validStatus {
-		return nil, errors.New("invalid order status")
-	}
+	order.Status = "CREATED"
 	for _, item := range *order.ProductItems {
-		product, err := s.productRepo.FindProductById(ctx, int64(item.ProductId))
+		product, err := s.productRepo.FindProductById(ctx, item.ProductId)
 		if err != nil {
 			return nil, errors.New("product doesn't exist")
 		}
@@ -49,7 +46,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, order *domain.Order) (*d
 		product.Quantity = product.Quantity - item.Quantity
 		_, err = s.productRepo.UpdateProduct(ctx, product, item.ProductId)
 		if err != nil {
-			return nil, errors.New("error updating product")
+			return nil, errors.New("error updating product quantity")
 		}
 	}
 	created, err := s.orderRepo.CreateOrder(ctx, order)
@@ -68,4 +65,12 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, order *domain.Orde
 		return nil, errors.Wrap(err, "failed to update an order")
 	}
 	return updated, nil
+}
+
+func (s *OrderService) DeleteOrder(ctx context.Context, order *domain.Order) error {
+	err := s.orderRepo.DeleteOrder(ctx, order)
+	if err != nil {
+		return errors.Wrap(err, "failed to update an order")
+	}
+	return nil
 }

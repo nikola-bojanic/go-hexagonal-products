@@ -61,7 +61,6 @@ func (e *OrderedProductModel) FromDomain(orderedProduct *domain.OrderedProduct) 
 	e.ProductId = orderedProduct.ProductId
 	e.Quantity = orderedProduct.Quantity
 }
-
 func (e *OrderedProductModel) ToDomain() *domain.OrderedProduct {
 	if e == nil {
 		return &domain.OrderedProduct{}
