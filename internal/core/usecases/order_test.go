@@ -191,3 +191,105 @@ func (suite *OrderSuite) TestDeleteOrder() {
 	suite.productRep.DeleteProduct(context.TODO(), pId)
 	suite.categoryRep.DeleteCategory(context.TODO(), cId)
 }
+
+func (suite *OrderSuite) TestCreateOrderWithInvalidProduct() {
+	testOrder := domain.Order{
+		Status:       "",
+		ProductItems: &[]domain.OrderedProduct{{ProductId: int64(555), Quantity: 10}},
+	}
+	_, err := suite.orderSvc.CreateOrder(context.TODO(), &testOrder)
+	assert.NotNil(suite.T(), err)
+}
+func (suite *OrderSuite) TestCreateOrderWithZeroProductQuantity() {
+	testCategory := domain.Category{
+		Name: "test",
+	}
+	cId, err := suite.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	if err != nil {
+		suite.T().Fatalf("Error creating test category: %s", err)
+	}
+	testProduct := domain.Product{
+		Name:             "test",
+		ShortDescription: "t",
+		Description:      "testing",
+		Price:            1000.0,
+		Quantity:         100,
+		Category:         &domain.Category{Id: int(cId)},
+	}
+	pId, err := suite.productSvc.CreateProduct(context.TODO(), &testProduct)
+	if err != nil {
+		suite.T().Fatalf("Error creating test product: %s", err)
+	}
+	testOrder := domain.Order{
+		Status:       "",
+		ProductItems: &[]domain.OrderedProduct{{ProductId: pId, Quantity: 0}},
+	}
+	_, err = suite.orderSvc.CreateOrder(context.TODO(), &testOrder)
+	assert.NotNil(suite.T(), err)
+	suite.productRep.DeleteProduct(context.TODO(), pId)
+	suite.categoryRep.DeleteCategory(context.TODO(), cId)
+}
+func (suite *OrderSuite) TestCreateOrderWithInvalidProductQuantity() {
+	testCategory := domain.Category{
+		Name: "test",
+	}
+	cId, err := suite.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	if err != nil {
+		suite.T().Fatalf("Error creating test category: %s", err)
+	}
+	testProduct := domain.Product{
+		Name:             "test",
+		ShortDescription: "t",
+		Description:      "testing",
+		Price:            1000.0,
+		Quantity:         100,
+		Category:         &domain.Category{Id: int(cId)},
+	}
+	pId, err := suite.productSvc.CreateProduct(context.TODO(), &testProduct)
+	if err != nil {
+		suite.T().Fatalf("Error creating test product: %s", err)
+	}
+	testOrder := domain.Order{
+		Status:       "",
+		ProductItems: &[]domain.OrderedProduct{{ProductId: pId, Quantity: 101}},
+	}
+	_, err = suite.orderSvc.CreateOrder(context.TODO(), &testOrder)
+	assert.NotNil(suite.T(), err)
+	suite.productRep.DeleteProduct(context.TODO(), pId)
+	suite.categoryRep.DeleteCategory(context.TODO(), cId)
+}
+func (suite *OrderSuite) TestInvalidProductStatusUpdate() {
+	testCategory := domain.Category{
+		Name: "test",
+	}
+	cId, err := suite.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	if err != nil {
+		suite.T().Fatalf("Error creating test category: %s", err)
+	}
+	testProduct := domain.Product{
+		Name:             "test",
+		ShortDescription: "t",
+		Description:      "testing",
+		Price:            1000.0,
+		Quantity:         100,
+		Category:         &domain.Category{Id: int(cId)},
+	}
+	pId, err := suite.productSvc.CreateProduct(context.TODO(), &testProduct)
+	if err != nil {
+		suite.T().Fatalf("Error creating test product: %s", err)
+	}
+	testOrder := domain.Order{
+		Status:       "",
+		ProductItems: &[]domain.OrderedProduct{{ProductId: pId, Quantity: 10}},
+	}
+	created, err := suite.orderRep.CreateOrder(context.TODO(), &testOrder)
+	if err != nil {
+		suite.T().Fatalf("Error creating test order: %s", err)
+	}
+	created.Status = "invalid"
+	_, err = suite.orderSvc.UpdateOrderStatus(context.TODO(), created)
+	assert.NotNil(suite.T(), err)
+	suite.orderRep.DeleteOrder(context.TODO(), created)
+	suite.productRep.DeleteProduct(context.TODO(), pId)
+	suite.categoryRep.DeleteCategory(context.TODO(), cId)
+}
