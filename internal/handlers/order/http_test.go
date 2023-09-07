@@ -124,7 +124,7 @@ func (suite *HttpSuite) TestUpdateOrderStatus() {
 		suite.T().Fatalf("Error creating test order: %s", err)
 	}
 	updateOrder := OrderRequest{
-		OrderId:  created.ID,
+		ID:       created.ID,
 		Status:   "PENDING",
 		Products: &[]OrderedProductModel{{ProductId: pId, Quantity: 10}},
 	}
@@ -170,7 +170,7 @@ func (suite *HttpSuite) TestDeleteOrder() {
 		suite.T().Fatalf("Error creating test product: %s", err)
 	}
 	deleteOrder := OrderRequest{
-		OrderId:  created.ID,
+		ID:       created.ID,
 		Status:   "CREATED",
 		Products: &[]OrderedProductModel{{ProductId: pId, Quantity: 10}},
 	}
@@ -181,7 +181,7 @@ func (suite *HttpSuite) TestDeleteOrder() {
 		suite.T().Fatalf("Error unmarshalling order response: %s", err)
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
-	assert.Equal(suite.T(), deleteOrder.OrderId, response.ID)
+	assert.Equal(suite.T(), deleteOrder.ID, response.ID)
 	suite.ProductRepo.DeleteProduct(context.TODO(), pId)
 	suite.CategoryRepo.DeleteCategory(context.TODO(), cId)
 }

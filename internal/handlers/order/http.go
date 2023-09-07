@@ -47,7 +47,7 @@ func (e *OrderHttpHandler) UpdateOrderStatus(req *restful.Request, res *restful.
 	var reqData OrderRequest
 	req.ReadEntity(&reqData)
 	var order *OrderModel = &OrderModel{}
-	order.ID = reqData.OrderId
+	order.ID = reqData.ID
 	order.Status = reqData.Status
 	order.ProductItems = reqData.Products
 	updated, err := e.orderSvc.UpdateOrderStatus(req.Request.Context(), order.ToDomain())
@@ -63,7 +63,7 @@ func (e *OrderHttpHandler) DeleteOrder(req *restful.Request, res *restful.Respon
 	var reqData OrderRequest
 	req.ReadEntity(&reqData)
 	var order *OrderModel = &OrderModel{}
-	order.ID = reqData.OrderId
+	order.ID = reqData.ID
 	order.ProductItems = reqData.Products
 	order.Status = reqData.Status
 	err := e.orderSvc.DeleteOrder(req.Request.Context(), order.ToDomain())

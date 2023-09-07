@@ -17,7 +17,7 @@ type OrderedProduct struct {
 }
 
 type OrderRequest struct {
-	OrderId  string
+	ID       string
 	Status   string
-	Products *[]OrderedProductModel
+	Products *[]OrderedProductModel `json:"product_items"`
 }
