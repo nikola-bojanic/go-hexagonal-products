@@ -47,11 +47,12 @@ func (suite *HttpSuite) SetupSuite() {
 func TestCategoryTestSuite(t *testing.T) {
 	suite.Run(t, new(HttpSuite))
 }
+
 func (suite *HttpSuite) TestGetCategories() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	id, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	_, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
@@ -63,13 +64,13 @@ func (suite *HttpSuite) TestGetCategories() {
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
 	assert.NotNil(suite.T(), response)
-	suite.categoryHttpSvc.categorySvc.DeleteCategory(context.TODO(), id)
 }
+
 func (suite *HttpSuite) TestGetCategory() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	id, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	id, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
@@ -80,47 +81,38 @@ func (suite *HttpSuite) TestGetCategory() {
 		suite.T().Fatalf("Error unmarshalling category response: %s", err)
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
-	assert.Equal(suite.T(), testCategory.Name, response.Name)
-	suite.categoryHttpSvc.categorySvc.DeleteCategory(context.TODO(), id)
-
+	assert.Equal(suite.T(), categoryName, response.Name)
 }
+
 func (suite *HttpSuite) TestCreateCategory() {
-	testCategory := CategoryRequest{
-		Name: "test",
-	}
-	responseRec := testutil.MakeRequest(suite.wsContainer, "POST", "/category", testCategory, nil)
+	categoryName := "test"
+	responseRec := testutil.MakeRequest(suite.wsContainer, "POST", "/category", CategoryRequest{Name: categoryName}, nil)
 	var createResponse Response
 	err := json.Unmarshal(responseRec.Body.Bytes(), &createResponse)
 	if err != nil {
 		suite.T().Fatalf("Error unmarshalling category response: %s", err)
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
-	assert.Equal(suite.T(), testCategory.Name, createResponse.Name)
-
-	suite.categoryHttpSvc.categorySvc.DeleteCategory(context.TODO(), createResponse.ID)
+	assert.Equal(suite.T(), categoryName, createResponse.Name)
 }
+
 func (suite *HttpSuite) TestUpdateCategory() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	id, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	id, err := suite.categoryHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{Name: categoryName})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	updateCategory := CategoryRequest{
-		Name: "testing",
-	}
-	responseRec := testutil.MakeRequest(suite.wsContainer, "PUT", "/category/"+strconv.Itoa(int(id)), updateCategory, nil)
+	updateName := "updated"
+	responseRec := testutil.MakeRequest(suite.wsContainer, "PUT", "/category/"+strconv.Itoa(int(id)), CategoryRequest{Name: updateName}, nil)
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
 	var updateResponse Response
 	err = json.Unmarshal(responseRec.Body.Bytes(), &updateResponse)
 	if err != nil {
 		suite.T().Fatalf("Error unmarshalling category response: %s", err)
 	}
-	assert.Equal(suite.T(), updateCategory.Name, updateResponse.Name)
+	assert.Equal(suite.T(), updateName, updateResponse.Name)
 	rowsAffected := int64(1)
 	assert.Equal(suite.T(), rowsAffected, updateResponse.ID)
-	suite.categoryHttpSvc.categorySvc.DeleteCategory(context.TODO(), id)
 }
 func (suite *HttpSuite) TestDeleteCategory() {
 	testCategory := domain.Category{

@@ -84,7 +84,7 @@ func NewServer(cfg config.ServerConfig, db *database.DB) *Server {
 	orderSvc := usecases.NewOrderService(orderRep, productRep)
 	product.NewProductHandler(productSvc, categorySvc, wsCont)
 	category.NewCategoryHandler(categorySvc, wsCont)
-	order.NewOrderHandler(orderSvc, wsCont)
+	order.NewOrderHandler(orderSvc, productSvc, categorySvc, userSvc, wsCont)
 	user.NewUserHandler(userSvc, wsCont)
 
 	http.Handle("/", wsCont)

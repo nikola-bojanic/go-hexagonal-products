@@ -7,6 +7,7 @@ type Response struct {
 
 type OrderResponse struct {
 	Status   string
+	UserId   string
 	Products *[]OrderedProduct
 }
 
@@ -19,5 +20,6 @@ type OrderedProduct struct {
 type OrderRequest struct {
 	ID       string
 	Status   string
+	UserId   string
 	Products *[]OrderedProductModel `json:"product_items"`
 }

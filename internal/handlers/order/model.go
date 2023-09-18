@@ -4,12 +4,14 @@ import (
 	"time"
 
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/core/domain"
+	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/user"
 )
 
 type OrderModel struct {
 	ID           string                 `json:"id"`
 	ProductItems *[]OrderedProductModel `json:"product_items"`
 	Status       string                 `json:"status"`
+	User         user.UserModel         `json:"user"`
 	CreatedAt    time.Time              `json:"createdAt"`
 	UpdatedAt    time.Time              `json:"updatedAt"`
 }
@@ -33,6 +35,8 @@ func (e *OrderModel) FromDomain(order *domain.Order) {
 		orderedProduct.FromDomain(&item)
 		products = append(products, orderedProduct)
 	}
+	e.User = user.UserModel{}
+	e.User.FromDomain(order.User)
 	e.ProductItems = &products
 }
 
@@ -50,6 +54,7 @@ func (e *OrderModel) ToDomain() *domain.Order {
 		Status:       e.Status,
 		CreatedAt:    e.CreatedAt,
 		UpdatedAt:    e.UpdatedAt,
+		User:         e.User.ToDomain(),
 		ProductItems: &products,
 	}
 }

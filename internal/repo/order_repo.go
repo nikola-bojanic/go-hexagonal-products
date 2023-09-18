@@ -16,18 +16,21 @@ var _ ports.OrderRepo = (*OrderRepository)(nil)
 type OrderRepository struct {
 	db                     *database.DB
 	OrderProductRepository *OrderProductRepository
+	UserRepository         *UserRepository
 }
 
 func NewOrderRepository(db *database.DB) *OrderRepository {
 	return &OrderRepository{
 		db:                     db,
 		OrderProductRepository: NewOrderProductRepository(db),
+		UserRepository:         NewUserRepository(db),
 	}
 }
 
 func (repo *OrderRepository) FindOrderById(ctx context.Context, id string) (*domain.Order, error) {
 	var order domain.Order
-	err := repo.db.QueryRow(ctx, `SELECT id, status, created_at, updated_at FROM hex_fwk.order WHERE id = $1`, id).Scan(&order.ID, &order.Status, &order.CreatedAt, &order.UpdatedAt)
+	var userId string
+	err := repo.db.QueryRow(ctx, `SELECT id, status, user_id, created_at, updated_at FROM hex_fwk.order WHERE id = $1`, id).Scan(&order.ID, &order.Status, &userId, &order.CreatedAt, &order.UpdatedAt)
 	if err == sql.ErrNoRows {
 		err = fmt.Errorf("order not found")
 		return nil, err
@@ -40,12 +43,17 @@ func (repo *OrderRepository) FindOrderById(ctx context.Context, id string) (*dom
 		return nil, err
 	}
 	order.ProductItems = productItems
+	user, err := repo.UserRepository.FindByID(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	order.User = user
 	return &order, nil
 }
 func (repo *OrderRepository) CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error) {
 	order.Status = "CREATED"
-	err := repo.db.QueryRow(ctx, `INSERT INTO hex_fwk.order (status) VALUES ($1) RETURNING id, status, created_at, updated_at`, order.Status).
-		Scan(&order.ID, &order.Status, &order.CreatedAt, &order.UpdatedAt)
+	err := repo.db.QueryRow(ctx, `INSERT INTO hex_fwk.order (status, user_id) VALUES ($1, $2) RETURNING id, status, user_id, created_at, updated_at`, order.Status, order.User.ID).
+		Scan(&order.ID, &order.Status, &order.User.ID, &order.CreatedAt, &order.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +67,11 @@ func (repo *OrderRepository) CreateOrder(ctx context.Context, order *domain.Orde
 	if err != nil {
 		return nil, err
 	}
+	user, err := repo.UserRepository.FindByID(ctx, order.User.ID)
+	if err != nil {
+		return nil, err
+	}
+	order.User = user
 	order.ProductItems = productItems
 	return order, nil
 }

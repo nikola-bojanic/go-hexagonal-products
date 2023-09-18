@@ -49,22 +49,27 @@ func TestProductTestSuite(t *testing.T) {
 }
 
 func (suite *HttpSuite) TestGetProducts() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	testProduct := domain.Product{
-		Name:             "test",
-		ShortDescription: "t",
-		Description:      "testing",
-		Price:            100.0,
-		Quantity:         1,
-		Category:         &domain.Category{Id: int(cId)},
-	}
-	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &testProduct)
+	productName := "test"
+	productShortDescription := "t"
+	productDescription := "testing"
+	productPrice := float32(100.0)
+	productQuantity := 1
+	productCategory := &domain.Category{Id: int(cId)}
+	_, err = suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &domain.Product{
+		Name:             productName,
+		ShortDescription: productShortDescription,
+		Description:      productDescription,
+		Price:            productPrice,
+		Quantity:         productQuantity,
+		Category:         productCategory,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test product: %s", err)
 	}
@@ -76,26 +81,29 @@ func (suite *HttpSuite) TestGetProducts() {
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
 	assert.NotNil(suite.T(), response)
-	suite.productHttpSvc.productSvc.DeleteProduct(context.TODO(), pId)
-	suite.productHttpSvc.categorySvc.DeleteCategory(context.TODO(), cId)
 }
 func (suite *HttpSuite) TestGetProduct() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	testProduct := domain.Product{
-		Name:             "test",
-		ShortDescription: "t",
-		Description:      "testing",
-		Price:            100.0,
-		Quantity:         1,
-		Category:         &domain.Category{Id: int(cId)},
-	}
-	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &testProduct)
+	productName := "test"
+	productShortDescription := "t"
+	productDescription := "testing"
+	productPrice := float32(100.0)
+	productQuantity := 1
+	productCategory := &domain.Category{Id: int(cId)}
+	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &domain.Product{
+		Name:             productName,
+		ShortDescription: productShortDescription,
+		Description:      productDescription,
+		Price:            productPrice,
+		Quantity:         productQuantity,
+		Category:         productCategory,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test product: %s", err)
 	}
@@ -106,32 +114,35 @@ func (suite *HttpSuite) TestGetProduct() {
 		suite.T().Fatalf("Error unmarshalling product response: %s", err)
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
-	assert.Equal(suite.T(), testProduct.Name, response.Name)
-	assert.Equal(suite.T(), testProduct.Category.Id, response.Category.Id)
-	assert.Equal(suite.T(), testProduct.Description, response.Description)
-	assert.Equal(suite.T(), testProduct.Price, response.Price)
-	assert.Equal(suite.T(), testProduct.ShortDescription, response.ShortDescription)
-	assert.Equal(suite.T(), testProduct.Quantity, response.Quantity)
-	suite.productHttpSvc.productSvc.DeleteProduct(context.TODO(), pId)
-	suite.productHttpSvc.categorySvc.DeleteCategory(context.TODO(), cId)
+	assert.Equal(suite.T(), productName, response.Name)
+	assert.Equal(suite.T(), productCategory.Id, response.Category.Id)
+	assert.Equal(suite.T(), productDescription, response.Description)
+	assert.Equal(suite.T(), productPrice, response.Price)
+	assert.Equal(suite.T(), productShortDescription, response.ShortDescription)
+	assert.Equal(suite.T(), productQuantity, response.Quantity)
 }
 func (suite *HttpSuite) TestCreateProduct() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	testProduct := domain.Product{
-		Name:             "test",
-		ShortDescription: "t",
-		Description:      "testing",
-		Price:            100.0,
-		Quantity:         1,
-		Category:         &domain.Category{Id: int(cId)},
-	}
-	responseRec := testutil.MakeRequest(suite.wsContainer, "POST", "/product", testProduct, nil)
+	productName := "test"
+	productShortDescription := "t"
+	productDescription := "testing"
+	productPrice := float32(100.0)
+	productQuantity := 1
+	productCategory := &domain.Category{Id: int(cId)}
+	responseRec := testutil.MakeRequest(suite.wsContainer, "POST", "/product", &domain.Product{
+		Name:             productName,
+		ShortDescription: productShortDescription,
+		Description:      productDescription,
+		Price:            productPrice,
+		Quantity:         productQuantity,
+		Category:         productCategory,
+	}, nil)
 	var response Response
 	err = json.Unmarshal(responseRec.Body.Bytes(), &response)
 	if err != nil {
@@ -139,45 +150,54 @@ func (suite *HttpSuite) TestCreateProduct() {
 	}
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
 	assert.Equal(suite.T(), "product created", response.Message)
-	suite.productHttpSvc.productSvc.DeleteProduct(context.TODO(), response.ID)
-	suite.productHttpSvc.categorySvc.DeleteCategory(context.TODO(), cId)
 }
 func (suite *HttpSuite) TestUpdateProduct() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	testProduct := domain.Product{
-		Name:             "test",
-		ShortDescription: "t",
-		Description:      "testing",
-		Price:            100.0,
-		Quantity:         1,
-		Category:         &domain.Category{Id: int(cId)},
-	}
-	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &testProduct)
+	productName := "test"
+	productShortDescription := "t"
+	productDescription := "testing"
+	productPrice := float32(100.0)
+	productQuantity := 1
+	productCategory := &domain.Category{Id: int(cId)}
+	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &domain.Product{
+		Name:             productName,
+		ShortDescription: productShortDescription,
+		Description:      productDescription,
+		Price:            productPrice,
+		Quantity:         productQuantity,
+		Category:         productCategory,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test product: %s", err)
 	}
-	updateCategory := domain.Category{
-		Name: "test2",
-	}
-	uCId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &updateCategory)
+	updateCname := "updated"
+	uCId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: updateCname,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	updateProduct := domain.Product{
-		Name:             "test2",
-		ShortDescription: "t2",
-		Description:      "testing2",
-		Price:            200.0,
-		Quantity:         2,
-		Category:         &domain.Category{Id: int(uCId)},
-	}
-	responseRec := testutil.MakeRequest(suite.wsContainer, "PUT", "/product/"+strconv.Itoa(int(pId)), updateProduct, nil)
+	updateName := "test2"
+	updateShortDescription := "t2"
+	updateDescription := "testing2"
+	updatePrice := float32(200.0)
+	updateQuantity := 2
+	updateCategory := &domain.Category{Id: int(uCId)}
+
+	responseRec := testutil.MakeRequest(suite.wsContainer, "PUT", "/product/"+strconv.Itoa(int(pId)), domain.Product{
+		Name:             updateName,
+		ShortDescription: updateShortDescription,
+		Description:      updateDescription,
+		Price:            updatePrice,
+		Quantity:         updateQuantity,
+		Category:         updateCategory,
+	}, nil)
 	assert.Equal(suite.T(), http.StatusOK, responseRec.Code)
 	var response Response
 	err = json.Unmarshal(responseRec.Body.Bytes(), &response)
@@ -188,26 +208,29 @@ func (suite *HttpSuite) TestUpdateProduct() {
 	assert.Equal(suite.T(), message, response.Message)
 	rowsAffected := int64(1)
 	assert.Equal(suite.T(), rowsAffected, response.ID)
-	suite.productHttpSvc.productSvc.DeleteProduct(context.TODO(), pId)
-	suite.productHttpSvc.categorySvc.DeleteCategory(context.TODO(), cId)
 }
 func (suite *HttpSuite) TestDeleteProduct() {
-	testCategory := domain.Category{
-		Name: "test",
-	}
-	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &testCategory)
+	categoryName := "test"
+	cId, err := suite.productHttpSvc.categorySvc.CreateCategory(context.TODO(), &domain.Category{
+		Name: categoryName,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test category: %s", err)
 	}
-	testProduct := domain.Product{
-		Name:             "test",
-		ShortDescription: "t",
-		Description:      "testing",
-		Price:            100.0,
-		Quantity:         1,
-		Category:         &domain.Category{Id: int(cId)},
-	}
-	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &testProduct)
+	productName := "test"
+	productShortDescription := "t"
+	productDescription := "testing"
+	productPrice := float32(100.0)
+	productQuantity := 1
+	productCategory := &domain.Category{Id: int(cId)}
+	pId, err := suite.productHttpSvc.productSvc.CreateProduct(context.TODO(), &domain.Product{
+		Name:             productName,
+		ShortDescription: productShortDescription,
+		Description:      productDescription,
+		Price:            productPrice,
+		Quantity:         productQuantity,
+		Category:         productCategory,
+	})
 	if err != nil {
 		suite.T().Fatalf("Error creating test product: %s", err)
 	}
@@ -222,6 +245,4 @@ func (suite *HttpSuite) TestDeleteProduct() {
 	assert.Equal(suite.T(), message, response.Message)
 	rowsAffected := int64(1)
 	assert.Equal(suite.T(), rowsAffected, response.ID)
-	suite.productHttpSvc.productSvc.DeleteProduct(context.TODO(), pId)
-	suite.productHttpSvc.categorySvc.DeleteCategory(context.TODO(), cId)
 }

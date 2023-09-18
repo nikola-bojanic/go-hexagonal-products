@@ -11,6 +11,7 @@ type Order struct {
 	Status       string            `json:"status"`
 	CreatedAt    time.Time         `json:"createdAt"`
 	UpdatedAt    time.Time         `json:"updatedAt"`
+	User         *User             `json:"user"`
 }
 type OrderedProduct struct {
 	ProductId int64 `json:"productId"`
@@ -18,5 +19,5 @@ type OrderedProduct struct {
 }
 
 func (e *Order) ToString() string {
-	return fmt.Sprintf("%s %v %s", e.ID, e.ProductItems, e.Status)
+	return fmt.Sprintf("%s %v %s %v", e.ID, e.ProductItems, e.Status, e.User)
 }

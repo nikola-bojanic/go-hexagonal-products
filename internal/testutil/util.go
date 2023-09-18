@@ -52,7 +52,10 @@ func MakeRequest(container *restful.Container, method string, path string, postD
 
 // Deletes all records from all tables
 func CleanUpTables(db database.DB) {
-	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.user")
-	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.product")
-	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.category")
+	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.order_product CASCADE")
+	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.order CASCADE")
+	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.product CASCADE")
+	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.category CASCADE")
+	db.Exec(context.TODO(), "TRUNCATE TABLE hex_fwk.user CASCADE")
+
 }

@@ -60,6 +60,23 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, order *domain.Orde
 	if !validStatus {
 		return nil, errors.New("invalid order status")
 	}
+	for _, item := range *order.ProductItems {
+		product, err := s.productRepo.FindProductById(ctx, item.ProductId)
+		if err != nil {
+			return nil, errors.New("product doesn't exist")
+		}
+		if item.Quantity <= 0 {
+			return nil, errors.New("invalid order")
+		}
+		if product.Quantity < item.Quantity {
+			return nil, errors.New("not enough items")
+		}
+		product.Quantity = product.Quantity - item.Quantity
+		_, err = s.productRepo.UpdateProduct(ctx, product, item.ProductId)
+		if err != nil {
+			return nil, errors.New("error updating product quantity")
+		}
+	}
 	updated, err := s.orderRepo.UpdateOrderStatus(ctx, order)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to update an order")
