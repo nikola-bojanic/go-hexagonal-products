@@ -81,7 +81,7 @@ func NewServer(cfg config.ServerConfig, db *database.DB) *Server {
 	productRep := repo.NewProductRepository(db)
 	productSvc := usecases.NewProductService(productRep)
 	orderRep := repo.NewOrderRepository(db)
-	orderSvc := usecases.NewOrderService(orderRep, productRep)
+	orderSvc := usecases.NewOrderService(orderRep, productRep, userRep)
 	product.NewProductHandler(productSvc, categorySvc, wsCont)
 	category.NewCategoryHandler(categorySvc, wsCont)
 	order.NewOrderHandler(orderSvc, productSvc, categorySvc, userSvc, wsCont)

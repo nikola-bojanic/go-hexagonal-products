@@ -6,6 +6,7 @@ import (
 
 	"github.com/emicklei/go-restful/v3"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/core/ports"
+	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/handlers/user"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/server/auth"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/server/params"
 )
@@ -30,6 +31,7 @@ func NewOrderHandler(orderSvc ports.OrderUsecase, productSvc ports.ProductUsecas
 	ws.Route(ws.POST("/").To(httpHandler.CreateOrder).Filter(auth.AuthJWT))
 	ws.Route(ws.PUT("/").To(httpHandler.UpdateOrderStatus).Filter(auth.AuthJWT))
 	ws.Route(ws.DELETE("/").To(httpHandler.DeleteOrder))
+	ws.Route(ws.GET("/pdf").To(httpHandler.GeneratePdf))
 
 	wsCont.Add(ws)
 
@@ -99,6 +101,23 @@ func (e *OrderHttpHandler) DeleteOrder(req *restful.Request, res *restful.Respon
 	err := e.orderSvc.DeleteOrder(req.Request.Context(), order.ToDomain())
 	if err != nil {
 		res.WriteError(http.StatusInternalServerError, errors.New("error deleting order"))
+		return
+	}
+	res.WriteAsJson(order)
+}
+
+func (e *OrderHttpHandler) GeneratePdf(req *restful.Request, res *restful.Response) {
+	var reqData OrderRequest
+	req.ReadEntity(&reqData)
+	var order *OrderModel = &OrderModel{}
+	order.ID = reqData.ID
+	order.User = user.UserModel{}
+	order.User.ID = reqData.UserId
+	order.Status = reqData.Status
+	order.ProductItems = reqData.Products
+	err := e.orderSvc.GeneratePdf(req.Request.Context(), order.ToDomain())
+	if err != nil {
+		res.WriteError(http.StatusInternalServerError, err)
 		return
 	}
 	res.WriteAsJson(order)

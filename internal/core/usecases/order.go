@@ -2,7 +2,9 @@ package usecases
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/jung-kurt/gofpdf"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/core/domain"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/core/ports"
 	"github.com/mitrovicsoftcoder/go-hexagonal-framework/internal/repo"
@@ -14,12 +16,14 @@ var _ ports.OrderUsecase = (*OrderService)(nil)
 type OrderService struct {
 	orderRepo   *repo.OrderRepository
 	productRepo *repo.ProductRepository
+	userRepo    *repo.UserRepository
 }
 
-func NewOrderService(orderRepo *repo.OrderRepository, productRepo *repo.ProductRepository) *OrderService {
+func NewOrderService(orderRepo *repo.OrderRepository, productRepo *repo.ProductRepository, userRepo *repo.UserRepository) *OrderService {
 	return &OrderService{
 		orderRepo:   orderRepo,
 		productRepo: productRepo,
+		userRepo:    userRepo,
 	}
 }
 
@@ -90,4 +94,76 @@ func (s *OrderService) DeleteOrder(ctx context.Context, order *domain.Order) err
 		return errors.Wrap(err, "failed to update an order")
 	}
 	return nil
+}
+
+func (s *OrderService) GeneratePdf(ctx context.Context, order *domain.Order) error {
+	pdf := s.newReport(ctx, order)
+	pdf = header(pdf, []string{"Product No.", "Name", "Quantity", "Unit Price", "Total Price"})
+
+	pdf = s.tableContent(ctx, pdf, order)
+	if pdf.Err() {
+		return pdf.Error()
+	}
+	err := pdf.OutputFileAndClose("pdf/order/order_[" + order.ID + "].pdf")
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *OrderService) tableContent(ctx context.Context, pdf *gofpdf.Fpdf, order *domain.Order) *gofpdf.Fpdf {
+	pdf.SetFont("Times", "", 16)
+	pdf.SetFillColor(255, 255, 255)
+
+	for i, orderedProduct := range *order.ProductItems {
+		product, _ := s.productRepo.FindProductById(ctx, orderedProduct.ProductId)
+
+		pdf.CellFormat(40, 10, strconv.Itoa(i+1), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(40, 10, product.Name, "1", 0, "C", false, 0, "")
+		pdf.CellFormat(40, 10, strconv.Itoa(orderedProduct.Quantity), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(40, 10, strconv.FormatFloat(float64(product.Price), 'f', 2, 64), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(40, 10, strconv.FormatFloat(float64(orderedProduct.Quantity)*float64(product.Price), 'f', 2, 64), "1", 0, "C", false, 0, "")
+		pdf.Ln(-1)
+	}
+
+	pdf.Ln(-1)
+
+	return pdf
+}
+
+func (s *OrderService) newReport(ctx context.Context, order *domain.Order) *gofpdf.Fpdf {
+	user, _ := s.userRepo.FindByID(ctx, order.User.ID)
+
+	pdf := gofpdf.New("L", "mm", "A4", "")
+	pdf.AddPage()
+
+	pdf.SetFont("Times", "B", 20)
+	pdf.Cell(40, 10, "Order ID: "+order.ID)
+	pdf.Ln(15)
+
+	pdf.SetFont("Times", "B", 20)
+	pdf.Cell(40, 10, "User ID: "+user.ID)
+	pdf.Ln(-1)
+
+	pdf.SetFont("Times", "B", 20)
+	pdf.Cell(40, 10, "User name: "+user.Name+" "+user.Surname)
+	pdf.Ln(-1)
+
+	pdf.SetFont("Times", "B", 20)
+	pdf.Cell(40, 10, "User e-mail: "+user.Email)
+	pdf.Ln(20)
+	return pdf
+}
+
+func header(pdf *gofpdf.Fpdf, headerText []string) *gofpdf.Fpdf {
+	pdf.SetFont("Times", "B", 16)
+	pdf.SetFillColor(240, 240, 240)
+
+	for _, str := range headerText {
+		pdf.CellFormat(40, 10, str, "1", 0, "C", true, 0, "")
+	}
+
+	pdf.Ln(-1)
+
+	return pdf
 }

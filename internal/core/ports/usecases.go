@@ -34,4 +34,5 @@ type OrderUsecase interface {
 	CreateOrder(ctx context.Context, order *domain.Order) (*domain.Order, error)
 	UpdateOrderStatus(ctx context.Context, order *domain.Order) (*domain.Order, error)
 	DeleteOrder(ctx context.Context, order *domain.Order) error
+	GeneratePdf(ctx context.Context, order *domain.Order) error
 }
